@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          : 'npm'
       - name: Install dependencies
         run: npm install
       - name: Build
@@ -39,4 +39,4 @@ jobs:
         with:
           path: './dist'
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
