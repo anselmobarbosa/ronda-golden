@@ -23,7 +23,7 @@ function App() {
       // Header
       doc.setFontSize(20);
       doc.setTextColor(40, 40, 40);
-      doc.text("Relatório de Ronda - Vistoria de Garagem", 14, 22);
+      doc.text("Ronda Golden - Relatório de Vistoria", 14, 22);
 
       doc.setFontSize(10);
       doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
