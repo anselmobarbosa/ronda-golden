@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { ShieldCheck, FileText, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useEffect } from 'react';
+import { db } from './firebaseConfig';
+import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 
 import { InspectionForm } from './components/InspectionForm';
 import { InspectionList } from './components/InspectionList';
@@ -12,8 +15,47 @@ function App() {
   const [inspectorName, setInspectorName] = useState('');
   const [inspections, setInspections] = useState([]);
 
-  const addInspection = (inspection) => {
-    setInspections([inspection, ...inspections]);
+  // Listen for real-time updates from Firebase
+  useEffect(() => {
+    const q = query(collection(db, "inspections"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const inspectionsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data, // Data first
+          id: doc.id, // Real ID wins
+          // Convert Firestore Timestamp to JS Date
+          timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp)
+        };
+      });
+      setInspections(inspectionsData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const addInspection = async (inspection) => {
+    try {
+      await addDoc(collection(db, "inspections"), {
+        ...inspection,
+        timestamp: inspection.timestamp // Firestore handles JS Date objects automatically
+      });
+    } catch (error) {
+      console.error("Erro ao salvar no banco de dados:", error);
+      // Show actual error to help debugging
+      alert(`Erro Firebase: ${error.code || 'Desconhecido'}\n\n${error.message}`);
+    }
+  };
+
+  const deleteInspection = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir esta vistoria?")) {
+      try {
+        await deleteDoc(doc(db, "inspections", id));
+      } catch (error) {
+        console.error("Erro ao excluir:", error);
+        alert(`Erro ao excluir: ${error.code || 'Desconhecido'}\n${error.message}`);
+      }
+    }
   };
 
   const generatePDF = () => {
@@ -73,21 +115,7 @@ function App() {
     }
   };
 
-  const handleEmail = () => {
-    const subject = encodeURIComponent(`Relatório de Ronda - ${new Date().toLocaleDateString('pt-BR')}`);
-    const body = encodeURIComponent(`Segue anexo o relatório da ronda realizada em ${new Date().toLocaleString('pt-BR')}.\n\nTotal de veículos vistoriados: ${inspections.length}\n\nAtenciosamente,\nRonda Golden`);
 
-    // Gmail Web Compose URL
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=${subject}&body=${body}`;
-
-    window.open(gmailUrl, '_blank');
-
-    // Provide feedback and download
-    setTimeout(() => {
-      alert("⚠️ ATENÇÃO:\n\n1. O Gmail foi aberto em uma nova aba.\n2. O PDF será baixado agora.\n3. ARRASTE o arquivo PDF para o e-mail aberto para anexá-lo.");
-      generatePDF();
-    }, 1000);
-  };
 
   if (!inspectorName) {
     return <LoginScreen onLogin={setInspectorName} />;
@@ -110,17 +138,13 @@ function App() {
             <FileText size={18} />
             Baixar PDF
           </button>
-          <button className="btn" onClick={handleEmail} disabled={inspections.length === 0}>
-            <Mail size={18} />
-            Enviar E-mail
-          </button>
         </div>
       </header>
 
       <main>
         <InspectionForm onAddInspection={addInspection} />
 
-        <InspectionList inspections={inspections} />
+        <InspectionList inspections={inspections} onDelete={deleteInspection} />
       </main>
     </div>
   );
