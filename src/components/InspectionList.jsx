@@ -1,6 +1,6 @@
 import { Trash2, AlertTriangle } from 'lucide-react';
 
-export function InspectionList({ inspections }) {
+export function InspectionList({ inspections, onDelete }) {
     if (inspections.length === 0) {
         return (
             <div className="card empty-state">
@@ -20,6 +20,7 @@ export function InspectionList({ inspections }) {
                             <th>Modelo</th>
                             <th>Placa</th>
                             <th>Estepe</th>
+                            <th style={{ width: '50px' }}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +41,21 @@ export function InspectionList({ inspections }) {
                                             AUSENTE
                                         </span>
                                     )}
+                                </td>
+                                <td>
+                                    <button
+                                        onClick={() => onDelete(item.id)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            color: 'var(--text-secondary)',
+                                            padding: '4px'
+                                        }}
+                                        title="Excluir"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}

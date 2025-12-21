@@ -17,8 +17,7 @@ export function LoginScreen({ onLogin }) {
             height: '100vh',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            paddingBottom: '20vh'
+            justifyContent: 'center'
         }}>
             <div className="card" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
                 <div style={{
@@ -36,15 +35,17 @@ export function LoginScreen({ onLogin }) {
                 </p>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
-                        <label>Nome do Agente</label>
+                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Nome do Agente</label>
                         <div style={{ position: 'relative' }}>
                             <div style={{
                                 position: 'absolute',
                                 left: '12px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
-                                color: 'var(--text-secondary)'
+                                color: 'var(--text-secondary)',
+                                display: 'flex',
+                                alignItems: 'center'
                             }}>
                                 <UserCircle size={20} />
                             </div>
@@ -53,7 +54,7 @@ export function LoginScreen({ onLogin }) {
                                 placeholder="Digite seu nome..."
                                 value={name}
                                 onChange={(e) => setName(e.target.value.toUpperCase())}
-                                style={{ paddingLeft: '40px' }}
+                                style={{ paddingLeft: '44px', textAlign: 'left' }}
                                 required
                                 autoFocus
                             />
